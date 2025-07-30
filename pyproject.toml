@@ -10,6 +10,8 @@ authors = [{name = "Jesse Anderson", email = "jesse.anderson@gmail.com"}]
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
+    "obstore>=0.7.1",
+    "rio-stac>=0.11.0",
 ]
 
 [dependency-groups]
