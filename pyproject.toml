@@ -50,7 +50,7 @@ force-single-line = true
 
 [tool.pytest.ini_options]
 minversion = "6.0"
-addopts = "-ra -q --cov=python_template"
+addopts = "-ra -q --cov=usgs_dem_stac"
 testpaths = ["tests"]
 
 [tool.coverage.run]
