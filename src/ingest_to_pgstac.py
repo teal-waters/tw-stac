@@ -6,7 +6,6 @@ from typing import Iterable
 import pystac
 from pypgstac.db import PgstacDB
 from pypgstac.load import Loader
-from pypgstac.load import Methods
 from pystac import Collection
 from pystac import Item
 
@@ -20,7 +19,7 @@ PG_DB = PgstacDB(f"postgresql://{PG_USER}:{PG_PASS}@{PG_URL}/postgis")
 def ingest_collection(collection: Collection, pg_db: PgstacDB = PG_DB) -> None:
     """Ingest a pystac Collection into the given database."""
     loader = Loader(pg_db)
-    loader.load_collections([collection.to_dict()])
+    loader.load_collections(iter([collection.to_dict()]))
 
 
 def ingest_items(
@@ -38,7 +37,7 @@ def ingest_items(
         )
 
     loader = Loader(pg_db)
-    loader.load_items([item.to_dict() for item in items])
+    loader.load_items(iter([item.to_dict() for item in items]))
 
 
 def get_items(folder: Path, glob: str) -> list[Item]:
@@ -47,7 +46,7 @@ def get_items(folder: Path, glob: str) -> list[Item]:
 
 
 if __name__ == "__main__":
-    collection = pystac.read_file(Path("data") / "usgs_dem_13.json")
+    collection: Collection = pystac.read_file(Path("data") / "usgs_dem_13.json")  # pyright: ignore
     ingest_collection(collection)
     items = get_items(Path("data"), "USGS_13*.json")
     ingest_items(items, collection)

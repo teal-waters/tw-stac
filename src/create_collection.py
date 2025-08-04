@@ -10,6 +10,7 @@ from pystac import Provider
 from pystac import SpatialExtent
 from pystac import Summaries
 from pystac import TemporalExtent
+from pystac.provider import ProviderRole
 
 extent = Extent(
     SpatialExtent([[-180, -90, 180, 90]]),
@@ -26,12 +27,16 @@ usgs_13_collection = Collection(
     providers=[
         Provider(
             name="TealWaters",
-            roles=["processor", "host"],
+            roles=[ProviderRole.PROCESSOR, ProviderRole.HOST],
             url="https://tealwaters.com",
         ),
         Provider(
             name="USGS",
-            roles=["producer", "processor", "licensor"],
+            roles=[
+                ProviderRole.PRODUCER,
+                ProviderRole.PROCESSOR,
+                ProviderRole.LICENSOR,
+            ],
             url="https://data.usgs.gov/datacatalog/data/USGS:da4a1ad0-af04-4228-85b7-66e3df87edfe",
         ),
     ],
@@ -43,6 +48,8 @@ usgs_13_collection = Collection(
 )
 
 collection_url = f"data/{usgs_13_collection.id}.json"
-usgs_13_collection.validate()
+usgs_13_collection.validate()  # pyright: ignore
 usgs_13_collection.set_self_href(collection_url)
-usgs_13_collection.save_object(dest_href=Path("data") / f"{usgs_13_collection.id}.json")
+usgs_13_collection.save_object(
+    dest_href=str(Path("data") / f"{usgs_13_collection.id}.json")
+)

@@ -24,7 +24,7 @@ def create_stac_items(output_folder: Path) -> None:
                     stac_item = rio_stac.create_stac_item(src)
 
                 output_path = output_folder / Path(s3_url).with_suffix(".json").name
-                stac_item.save_object(dest_href=output_path)
+                stac_item.save_object(dest_href=str(output_path))
                 print(output_path)
 
 
