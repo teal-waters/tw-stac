@@ -8,7 +8,7 @@ import rasterio
 import rio_stac
 
 
-def main(output_folder: Path) -> None:
+def create_stac_items(output_folder: Path) -> None:
     """Run the process."""
     prefix = "s3://prd-tnm/StagedProducts/Elevation/13/TIFF/current"
     store = obstore.store.from_url(
@@ -32,4 +32,4 @@ if __name__ == "__main__":
     output_folder = Path("data")
     os.makedirs(output_folder, exist_ok=True)
     with rasterio.Env(AWS_NO_SIGN_REQUEST="YES", AWS_REGION="us-west-2"):
-        main(output_folder)
+        create_stac_items(output_folder)
