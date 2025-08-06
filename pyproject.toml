@@ -57,6 +57,7 @@ testpaths = ["tests"]
 source = ["usgs_dem_stac"]
 
 [tool.coverage.report]
+disable_warnings = ["no-data-collected"]
 exclude_lines = [
 ]
 
