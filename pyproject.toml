@@ -54,10 +54,10 @@ addopts = "-ra -q --cov=usgs_dem_stac"
 testpaths = ["tests"]
 
 [tool.coverage.run]
+disable_warnings = ["no-data-collected"]
 source = ["usgs_dem_stac"]
 
 [tool.coverage.report]
-disable_warnings = ["no-data-collected"]
 exclude_lines = [
 ]
 
