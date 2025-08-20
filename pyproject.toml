@@ -19,6 +19,7 @@ dependencies = [
     "rio-stac>=0.11.0",
     "ruff>=0.12.7",
     "stac-geoparquet>=0.7.0",
+    "typer>=0.16.1",
 ]
 
 [dependency-groups]
