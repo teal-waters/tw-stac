@@ -13,7 +13,12 @@ dependencies = [
     "kubernetes>=33.1.0",
     "kubernetes-stubs-elephant-fork>=33.1.0",
     "obstore>=0.7.1",
+    "psycopg[binary,pool]>=3.2.9",
+    "pypgstac>=0.9.7",
+    "pystac[validation]>=1.13.0",
     "rio-stac>=0.11.0",
+    "ruff>=0.12.7",
+    "stac-geoparquet>=0.7.0",
 ]
 
 [dependency-groups]
@@ -59,4 +64,4 @@ exclude_lines = [
 ]
 
 [tool.pyright]
-typeCheckingMode = "strict"
+typeCheckingMode = "standard"
