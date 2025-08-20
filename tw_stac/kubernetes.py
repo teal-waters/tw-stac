@@ -29,12 +29,12 @@ def get_stac_pod_name(namespace: str = NAMESPACE, app: str = APP) -> Tuple[str, 
     """
     podlist = _api().list_namespaced_pod(namespace, label_selector=f"app={app}").items
     if len(podlist) == 0:
-        return None
+        raise Exception("Pod not found")
     else:
-        return podlist[0].metadata.name, namespace
+        return podlist[0].metadata.name, namespace  # pyright: ignore
 
 
-def run_command_on_stac_pod(command: str, **kwargs: dict[str, str]) -> None:
+def run_command_on_stac_pod(command: str, **kwargs: str) -> None:
     """Run a command on the stac pod.
 
     Args:
@@ -53,7 +53,7 @@ def run_command_on_pod(command: str, pod_name: str, namespace: str = NAMESPACE) 
         pod_name:  The name of the pod to run it on.
         namespace: The namespace containing the pod.
     """
-    resp = stream(
+    _ = stream(
         _api().connect_get_namespaced_pod_exec,
         pod_name,
         namespace,
