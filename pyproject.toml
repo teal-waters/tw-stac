@@ -3,13 +3,15 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "usgs-dem-stac"
+name = "tw-stac"
 version = "0.1.0"
-description = "Create STAC catalogs for USGS dems"
+description = "Helpers to create and deploy Spatio-Temporal Asset Catalogs (STAC)"
 authors = [{name = "Jesse Anderson", email = "jesse.anderson@gmail.com"}]
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
+    "kubernetes>=33.1.0",
+    "kubernetes-stubs-elephant-fork>=33.1.0",
     "obstore>=0.7.1",
     "psycopg[binary,pool]>=3.2.9",
     "pypgstac>=0.9.7",
@@ -17,6 +19,7 @@ dependencies = [
     "rio-stac>=0.11.0",
     "ruff>=0.12.7",
     "stac-geoparquet>=0.7.0",
+    "typer>=0.16.1",
 ]
 
 [dependency-groups]
@@ -25,10 +28,11 @@ dev = [
     "pyright>=1.1.403",
     "pytest>=8.4.1",
     "pytest-cov>=6.2.1",
+    "ruff>=0.12.9",
 ]
 
 [tool.hatch.build.targets.wheel]
-packages = ["usgs_dem_stac"]
+packages = ["tw_stac"]
 
 [tool.ruff.lint]
 # D enables all `pydocstyle` rules
@@ -50,11 +54,11 @@ force-single-line = true
 
 [tool.pytest.ini_options]
 minversion = "6.0"
-addopts = "-ra -q --cov=usgs_dem_stac"
+addopts = "-ra -q --cov=tw_stac"
 testpaths = ["tests"]
 
 [tool.coverage.run]
-source = ["usgs_dem_stac"]
+source = ["tw_stac"]
 
 [tool.coverage.report]
 exclude_lines = [

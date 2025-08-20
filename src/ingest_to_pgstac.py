@@ -1,31 +1,88 @@
-"""Ingest USGS DEM stac collection & items into pgstac database""" """"""
+"""Ingest USGS DEM stac collection & items into pgstac database."""
 
-from pathlib import Path
-from typing import Iterable
+import json
 
+import obstore
 import pystac
+import typer
 from pypgstac.db import PgstacDB
 from pypgstac.load import Loader
 from pystac import Collection
 from pystac import Item
 
-PG_URL = "127.0.0.1:5439"
-PG_USER = "username"
-PG_PASS = "password"
+CONTAINER = "tw-staging"
+ACCOUNT_NAME = "tealwaters"
+PG_DB = PgstacDB()
 
-PG_DB = PgstacDB(f"postgresql://{PG_USER}:{PG_PASS}@{PG_URL}/postgis")
+app = typer.Typer()
 
 
-def ingest_collection(collection: Collection, pg_db: PgstacDB = PG_DB) -> None:
+@app.command()
+def ingest_collection(url: str) -> None:
     """Ingest a pystac Collection into the given database."""
-    loader = Loader(pg_db)
+    collection = Collection.from_file(url)
+    loader = Loader(PG_DB)
     loader.load_collections(iter([collection.to_dict()]))
 
 
-def ingest_items(
-    items: Iterable[Item], collection: Collection, pg_db: PgstacDB = PG_DB
+@app.command()
+def load_and_ingest_items(
+    prefix: str,
+    collection_url: str,
+    container: str = CONTAINER,
+    account_name: str = ACCOUNT_NAME,
 ) -> None:
-    """Ingest collection into pgstac database."""
+    """Load items and ingest into the STAC database.
+
+    Args:
+        prefix:
+        collection_url:
+        container:
+        account_name:
+
+    """
+    items = get_items(container, prefix, account_name)
+    collection = Collection.from_file(collection_url)
+    return ingest_items(items, collection)
+
+
+def get_items(
+    container: str, prefix: str, account_name: str = "tealwaters"
+) -> list[Item]:
+    """Get a list all STAC items.
+
+    Args:
+        container: The container name.
+        prefix: The prefix or folder which has items we wish to collect.
+        account_name: The account name
+
+    Returns:
+        A list of STAC Items.
+
+    Raises:
+        Exception: If there are no items.
+    """
+    store = obstore.store.AzureStore(
+        container_name=container, prefix=prefix, account_name=account_name
+    )
+
+    items = []
+    for chunk in store.list(chunk_size=1000):
+        for file in chunk:
+            if file["path"].endswith(".json"):
+                item = Item.from_dict(
+                    json.loads(store.get(file["path"]).bytes().to_bytes())
+                )
+                items.append(item)
+    if len(items) == 0:
+        raise Exception("No STAC Items found")
+    return items
+
+
+def ingest_items(
+    items: list[Item], collection: Collection, pg_db: PgstacDB = PG_DB
+) -> None:
+    """Ingest items into pgstac database."""
     for item in items:
         item.collection_id = collection.id
         item.add_link(
@@ -40,13 +97,5 @@ def ingest_items(
     loader.load_items(iter([item.to_dict() for item in items]))
 
 
-def get_items(folder: Path, glob: str) -> list[Item]:
-    """Get a list of all items in the given folder & glob."""
-    return [Item.from_file(file) for file in folder.glob(glob)]
-
-
 if __name__ == "__main__":
-    collection: Collection = pystac.read_file(Path("data") / "usgs_dem_13.json")  # pyright: ignore
-    ingest_collection(collection)
-    items = get_items(Path("data"), "USGS_13*.json")
-    ingest_items(items, collection)
+    app()
