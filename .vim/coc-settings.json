@@ -1,3 +1,6 @@
 {
-  "python.formatting.provider": "ruff"
+  "python.formatting.provider": "ruff",
+  "ruff.enable": true,
+  "ruff.autoFix": true,
+  "ruff.trace.server": "verbose"
 }

@@ -8,7 +8,7 @@ import rasterio
 import rio_stac
 
 
-def main(output_folder: Path) -> None:
+def create_usgs_stac_items(output_folder: Path) -> None:
     """Run the process."""
     prefix = "s3://prd-tnm/StagedProducts/Elevation/13/TIFF/current"
     store = obstore.store.from_url(
