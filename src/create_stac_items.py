@@ -1,6 +1,7 @@
 """Create stac items for all 1/3 arc-second USGS dems."""
 
 import json
+from io import TextIOWrapper
 from pathlib import Path
 
 import obstore
@@ -11,7 +12,7 @@ from pystac import Asset
 from pystac import MediaType
 
 
-def create_stac_items(output_folder: Path) -> None:
+def create_stac_items(output_file: TextIOWrapper) -> None:
     """Run the process."""
     prefix = "s3://prd-tnm/StagedProducts/Elevation/13/TIFF/current"
     store = obstore.store.from_url(
@@ -21,6 +22,7 @@ def create_stac_items(output_folder: Path) -> None:
     )
 
     output_store = obstore.store.from_url("az://tw-staging", account_name="tealwaters")
+    output_file.write("[")
 
     for chunk in store.list(chunk_size=1000):
         for item in chunk:
@@ -48,13 +50,20 @@ def create_stac_items(output_folder: Path) -> None:
                         with_eo=True,
                         collection="USGS_DEM_13",
                     )
-                item_json = json.dumps(stac_item.to_dict(), indent=2).encode("utf-8")
-                output_path = output_folder / Path(s3_url).with_suffix(".json").name
-                output_store.put(str(output_path), item_json)
-                print(output_path)
+                item_json = json.dumps(
+                    stac_item.to_dict(), indent=2
+                )  # .encode("utf-8")
+                output_file.write(item_json + ",\n")
+                # output_path = output_folder / Path(s3_url).with_suffix(".json").name
+                # output_store.put(str(output_path), item_json)
+                # print(output_path)
+    output_file.write("]")
 
 
 if __name__ == "__main__":
-    output_folder = Path("usgs/dem/13")
-    with rasterio.Env(AWS_NO_SIGN_REQUEST="YES", AWS_REGION="us-west-2"):
-        create_stac_items(output_folder)
+    output_file = Path("usgs/dem/13/items.json")
+    with (
+        rasterio.Env(AWS_NO_SIGN_REQUEST="YES", AWS_REGION="us-west-2"),
+        open(output_file, "w") as output_sink,
+    ):
+        create_stac_items(output_sink)
