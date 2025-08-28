@@ -1,4 +1,4 @@
-"""Ingest USGS DEM stac collection & items into pgstac database."""
+"""Functions to ingest STAC collections and items into a Postgresql STAC database."""
 
 import json
 
@@ -18,10 +18,15 @@ app = typer.Typer()
 
 
 @app.command()
-def ingest_collection(url: str) -> None:
-    """Ingest a pystac Collection into the given database."""
+def ingest_collection(url: str, db: PgstacDB = PG_DB) -> None:
+    """Load a collection into a PGStacDB.
+
+    Args:
+        url: The url of the collection json file.
+        db: The database.
+    """
     collection = Collection.from_file(url)
-    loader = Loader(PG_DB)
+    loader = Loader(db)
     loader.load_collections(iter([collection.to_dict()]))
 
 
@@ -35,26 +40,26 @@ def load_and_ingest_items(
     """Load items and ingest into the STAC database.
 
     Args:
-        prefix:
-        collection_url:
-        container:
-        account_name:
+        prefix: The folder prefix for the items.
+        collection_url: The URL to the corresponding collection.
+        container: The blob storage container that holds the items.
+        account_name: The account name which holds the container.
 
     """
-    items = get_items(container, prefix, account_name)
+    items = load_items(container, prefix, account_name)
     collection = Collection.from_file(collection_url)
     return ingest_items(items, collection)
 
 
-def get_items(
+def load_items(
     container: str, prefix: str, account_name: str = "tealwaters"
 ) -> list[Item]:
     """Get a list all STAC items.
 
     Args:
-        container: The container name.
         prefix: The prefix or folder which has items we wish to collect.
-        account_name: The account name
+        container: The container name.
+        account_name: The account name.
 
     Returns:
         A list of STAC Items.
@@ -80,9 +85,15 @@ def get_items(
 
 
 def ingest_items(
-    items: list[Item], collection: Collection, pg_db: PgstacDB = PG_DB
+    items: list[Item], collection: Collection, db: PgstacDB = PG_DB
 ) -> None:
-    """Ingest items into pgstac database."""
+    """Ingest items into pgstac database.
+
+    Args:
+        items: A list of STAC items.
+        collection: The collections in which to place the items
+        pg_db: The database.
+    """
     for item in items:
         item.collection_id = collection.id
         item.add_link(
@@ -93,7 +104,7 @@ def ingest_items(
             )
         )
 
-    loader = Loader(pg_db)
+    loader = Loader(db)
     loader.load_items(iter([item.to_dict() for item in items]))
 
 
