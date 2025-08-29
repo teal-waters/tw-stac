@@ -18,15 +18,15 @@ app = typer.Typer()
 
 
 @app.command()
-def ingest_collection(url: str, db: PgstacDB = PG_DB) -> None:
+def ingest_collection(collection_url: str) -> None:
     """Load a collection into a PGStacDB.
 
     Args:
-        url: The url of the collection json file.
+        collection_url: The url of the collection json file.
         db: The database.
     """
-    collection = Collection.from_file(url)
-    loader = Loader(db)
+    collection = Collection.from_file(collection_url)
+    loader = Loader(PG_DB)
     loader.load_collections(iter([collection.to_dict()]))
 
 
@@ -52,7 +52,7 @@ def load_and_ingest_items(
 
 
 def load_items(
-    container: str, prefix: str, account_name: str = "tealwaters"
+    container: str, prefix: str, account_name: str = ACCOUNT_NAME
 ) -> list[Item]:
     """Get a list all STAC items.
 
