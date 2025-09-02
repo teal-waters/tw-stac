@@ -6,6 +6,7 @@ from typing import Tuple
 from kubernetes import client
 from kubernetes import config
 from kubernetes.stream import stream
+from kubernetes.stream.ws_client import WSResponse
 
 from tw_stac.config import APP
 from tw_stac.config import NAMESPACE
@@ -34,12 +35,12 @@ def get_stac_pod_name(namespace: str = NAMESPACE, app: str = APP) -> Tuple[str, 
         return podlist[0].metadata.name, namespace  # pyright: ignore
 
 
-def run_command_on_stac_pod(command: str, **kwargs: str) -> None:
+def run_command_on_stac_pod(command: str, **kwargs: str) -> str:
     """Run a command on the stac pod.
 
     Args:
         command: The command to run.
-        kwargs: Additional arguments to `run_command_on_pod`.
+        kwargs: Additional arguments to :py:func:`get_stac_pod_name`.
     """
     pod_name, namespace = get_stac_pod_name(**kwargs)
     return run_command_on_pod(command=command, pod_name=pod_name, namespace=namespace)
@@ -53,13 +54,22 @@ def run_command_on_pod(command: str, pod_name: str, namespace: str = NAMESPACE) 
         pod_name:  The name of the pod to run it on.
         namespace: The namespace containing the pod.
     """
-    _ = stream(
+    resp: WSResponse = stream(
         _api().connect_get_namespaced_pod_exec,
         pod_name,
         namespace,
-        command=command,
+        command=["bash", "-c", command],
         stderr=True,
         stdin=False,
         stdout=True,
         tty=False,
+        _preload_content=False,
     )
+
+    # Read output as it arrives
+    while resp.is_open():
+        resp.update(timeout=1)
+        if resp.peek_stdout():
+            print(resp.read_stdout(), end="")
+        if resp.peek_stderr():
+            print(resp.read_stderr(), end="")

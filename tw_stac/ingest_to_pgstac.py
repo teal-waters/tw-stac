@@ -75,10 +75,10 @@ def load_items(
     for chunk in store.list(chunk_size=1000):
         for file in chunk:
             if file["path"].endswith(".json"):
-                item = Item.from_dict(
-                    json.loads(store.get(file["path"]).bytes().to_bytes())
-                )
-                items.append(item)
+                loaded = json.loads(store.get(file["path"]).bytes().to_bytes())
+                # Weak check to see if this is actually an item before loading.
+                if not loaded.get("type") == "Collection":
+                    items.append(Item.from_dict(loaded))
     if len(items) == 0:
         raise Exception("No STAC Items found")
     return items
