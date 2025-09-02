@@ -25,7 +25,22 @@ ACCOUNT_NAME = "tealwaters"
 def create_stac_items(
     output_folder: Path, container: str = CONTAINER, account_name: str = ACCOUNT_NAME
 ) -> None:
-    """Run the process."""
+    """Create STAC items for USGS 1/3 arcsecond DEMs and save them to an Azure Blob storage.
+
+    This function retrieves TIFF elevation data from a specified S3 bucket,
+    processes each file, and creates corresponding STAC items.
+    The generated STAC items are then stored in the specified Azure Blob container.
+
+    Args:
+        output_folder: The local directory where the STAC item JSON files
+            will be saved.
+        container: The name of the Azure Blob container to store the STAC
+            items (default is CONTAINER).
+        account_name: The Azure Storage account name (default is ACCOUNT_NAME).
+
+    Returns:
+        None
+    """
     input_prefix = "s3://prd-tnm/StagedProducts/Elevation/13/TIFF/current"
     input_store = obstore.store.from_url(
         input_prefix,
