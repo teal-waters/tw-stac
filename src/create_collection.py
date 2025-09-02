@@ -16,7 +16,18 @@ from pystac.provider import ProviderRole
 
 
 def create_collection(output_folder: Path) -> None:
-    """Create USGS DEM collection."""
+    """Create a STAC collection and store it in a specified output folder.
+
+    This function constructs a STAC collection representing the USGS 1/3 arcsecond DEM,
+    validates it, and writes the collection to a JSON file. It also uploads the collection
+    to a specified Azure storage account.
+
+    Args:
+        output_folder: The folder where the collection JSON file will be saved.
+
+    Returns:
+        None
+    """
     extent = Extent(
         SpatialExtent([[-180, -90, 180, 90]]),
         TemporalExtent([[datetime(1980, 1, 1, 0, 0, 0, 0, timezone.utc), None]]),
@@ -64,6 +75,8 @@ def create_collection(output_folder: Path) -> None:
         f"az://{container}", account_name=storage_account
     )
     collection_json = json.dumps(usgs_13_collection.to_dict(), indent=2).encode("utf-8")
+    with open(output_folder / "collection.json", "wb") as dst:
+        dst.write(collection_json)
     output_store.put(str(output_path), collection_json)
     print(collection_url)
 

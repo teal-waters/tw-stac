@@ -1,4 +1,7 @@
-# usgs-dem-stac
+# tw-stac
+
+Tools to create and ingest Spatio-Temporal Asset Catalog (STAC) Colllections
+and Items.
 
 ## Quick Start
 
@@ -37,12 +40,12 @@ uv run pre-commit run --all-files  # Run all hooks
 ### Project Structure
 
 ```
-python-template/
-├── python_template/          # Main package (rename this)
+tw-stac/
+├── tw_stac/                  # Main package
 ├── tests/                    # Test directory
 ├── .github/                  # GitHub templates and workflows
 ├── .pre-commit-config.yaml   # Pre-commit configuration
-├── pyproject.toml           # Project configuration
+├── pyproject.toml            # Project configuration
 └── README.md
 ```
 
