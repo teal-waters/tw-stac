@@ -35,7 +35,7 @@ def get_stac_pod_name(namespace: str = NAMESPACE, app: str = APP) -> Tuple[str, 
         return podlist[0].metadata.name, namespace  # pyright: ignore
 
 
-def run_command_on_stac_pod(command: str, **kwargs: str) -> str:
+def run_command_on_stac_pod(command: str, **kwargs: str) -> None:
     """Run a command on the stac pod.
 
     Args:
