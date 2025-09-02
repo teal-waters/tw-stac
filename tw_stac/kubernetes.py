@@ -5,8 +5,7 @@ from typing import Tuple
 
 from kubernetes import client
 from kubernetes import config
-from kubernetes.stream import stream
-from kubernetes.stream.ws_client import WSResponse
+from kubernetes import stream
 
 from tw_stac.config import APP
 from tw_stac.config import NAMESPACE
@@ -54,7 +53,7 @@ def run_command_on_pod(command: str, pod_name: str, namespace: str = NAMESPACE) 
         pod_name:  The name of the pod to run it on.
         namespace: The namespace containing the pod.
     """
-    resp: WSResponse = stream(
+    resp: stream.ws_client.WSResponse = stream.stream(  # pyright: ignore[reportAttributeAccessIssue]
         _api().connect_get_namespaced_pod_exec,
         pod_name,
         namespace,
